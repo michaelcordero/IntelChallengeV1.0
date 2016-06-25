@@ -21,14 +21,16 @@
 Template Name: Results
 */
 
-get_header(); ?>
+    get_header();
 
-	<section class="page-header" style="background:#404040 url(<?php if ( get_header_image() ) { header_image(); }  ?>)">
+?>
+
+	<section class="page-header" style="background:#404040 url(<?php if ( get_header_image() ) { header_image(); }  ?>/*)">*/
     <div class="container">
 	        <div class="row">
 	            <div class="col-sm-12">
 	                <div class="block">
-                    <h1 class="page-title"><?php the_title(); ?></h1>
+                     <h1 class="page-title"><?php the_title(); ?></h1>
 	                    <div class="underline"></div>
 <?php flatter_breadcrumbs(); ?>
                 </div>
@@ -40,7 +42,6 @@ get_header(); ?>
 
 <?php
 global $wpdb;  //wordpress global variable that interacts with DB
-$clearButton;
 $results = $wpdb->get_results("SELECT * FROM wordpress.IntelChallenge", ARRAY_N);
 if(!empty($results)){
     echo "<h1>"."Data Table". "</h1>";
@@ -49,22 +50,24 @@ if(!empty($results)){
        echo "<tr>"."<td>".$row[0]."</td>"."<td>".$row[1]."</td>"."<td>".$row[2]."</td>"."<td>".$row[3]."</td>"."<td>".$row[4]."</td>"."</tr>";
    }
     echo "</table>";
-   $clearButton=true;
+
+    echo "<br/>"."<br/>"."<br/>";
+    $trojans="";
+    $cleans="";
+    $virus="";
+    $unknown="";
+    $pup="";
+
+    echo "Detected: "."<br/>";
+    echo " ".$trojans."  Trojans"."<br/>";
+    echo " ".$cleans."  Cleans"."<br/>";
+    echo " ".$virus."   Viruses"."<br/>";
+    echo " ".$unknowns."  Unknowns"."<br/>";
+    echo " ".$pups."    Pups"."<br/>";
 }else{
     echo "<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>";
-    $clearButton=false;
 }
 
-function clearData(){
-    try{
-        $link = mysqli_connect("localhost","root","Qqq#1080","wordpress");
-        mysqli_query($link,'TRUNCATE TABLE IntelChallenge');
-    }catch (mysqli_sql_exception $e ){
-        echo "<h2>" . $e->getMessage() . "</h2>";
-    }
-
-
-}
 ?>
 
 <?php
@@ -88,7 +91,7 @@ $csvfile = $_FILES[csv][tmp_name];
             array(
                 PDO::MYSQL_ATTR_LOCAL_INFILE => true,
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::MYSQL_ATTR_READ_DEFAULT_GROUP => 'client')
+                PDO::MYSQL_ATTR_READ_DEFAULT_GROUP => 'client') //PHP v5.5 bug fix
         );
     } catch (PDOException $e) {
         die("database connection failed: " . $e->getMessage());
@@ -99,8 +102,7 @@ $csvfile = $_FILES[csv][tmp_name];
       LOAD DATA LOCAL INFILE " . $pdo->quote($csvfile) . " INTO TABLE `$databasetable` 
       FIELDS TERMINATED BY " . $pdo->quote($fieldseparator) . "
       LINES TERMINATED BY " . $pdo->quote($lineseparator));
-        echo "Success! Loaded $affectedRows total records from the csv file.\n";
-        header('Location: '.$_SERVER['REQUEST_URI']);
+        echo '<META HTTP-EQUIV=Refresh CONTENT="0; URL='.$current_URL.'">';
     } catch (PDOException $e) {
         echo "<h2>" . $e->getMessage() . "</h2>";
     }
@@ -116,8 +118,8 @@ $csvfile = $_FILES[csv][tmp_name];
 <form action="" method="post" enctype="multipart/form-data" name="form1" id="form1">
     Choose your file: <br />
     <input name="csv" type="file" id="csv" accept=".csv" />
-    <input type="submit" name="Submit" value="Submit" disabled=""/>
-    <input type="submit" name="Clear" class="button" value="Clear Data" disabled=""  />
+    <input type="submit" name="Submit" value="Submit"  />
+    <input type="submit" name="Clear" class="button" value="Clear Data" onclick="clearData()"  />
 </form>
 </body>
 </html>
