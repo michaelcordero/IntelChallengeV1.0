@@ -51,19 +51,22 @@ if(!empty($results)){
    }
     echo "</table>";
 
-    echo "<br/>"."<br/>"."<br/>";
-    $trojans="";
-    $cleans="";
-    $virus="";
-    $unknown="";
-    $pup="";
+    echo "<br/>"."<br/>";
+    $trojans=$wpdb->get_var("SELECT COUNT(*)  FROM `IntelChallenge` WHERE `ClassificationType` LIKE 'trojan'");
+    $clean=$wpdb->get_var("SELECT COUNT(*)  FROM `IntelChallenge` WHERE `ClassificationType` LIKE 'clean'");
+    $virus=$wpdb->get_var("SELECT COUNT(*)  FROM `IntelChallenge` WHERE `ClassificationType` LIKE 'virus'");
+    $unknown=$wpdb->get_var("SELECT COUNT(*)  FROM `IntelChallenge` WHERE `ClassificationType` LIKE 'unknown'");
+    $pup=$wpdb->get_var("SELECT COUNT(*)  FROM `IntelChallenge` WHERE `ClassificationType` LIKE 'pup'");
 
-    echo "Detected: "."<br/>";
-    echo " ".$trojans."  Trojans"."<br/>";
-    echo " ".$cleans."  Cleans"."<br/>";
-    echo " ".$virus."   Viruses"."<br/>";
-    echo " ".$unknowns."  Unknowns"."<br/>";
-    echo " ".$pups."    Pups"."<br/>";
+    echo "<h1>"."Data Detection Results". "</h1>";
+    echo "<table border='1' cellspacing='5em' cellpadding='5'>";
+    echo "<tr>"."<td>"."Trojan Files: "."</td>"."<td>".$trojans."</td>"."<tr/>";
+    echo "<tr>"."<td>"."Clean Files: "."</td>"."<td>".$clean."</td>"."<tr/>";
+    echo "<tr>"."<td>"."Virus Files: "."</td>"."<td>".$virus."</td>"."<tr/>";
+    echo "<tr>"."<td>"."Unknown Files: "."</td>"."<td>".$unknown."</td>"."<tr/>";
+    echo "<tr>"."<td>"."Pup Files: "."</td>"."<td>".$pup."</td>"."<tr/>";
+    echo "</table>";
+    echo "<br/>"."<br/>";
 }else{
     echo "<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>";
 }
@@ -82,8 +85,24 @@ $lineseparator = "\n";
 
 if ($_FILES[csv][size] > 0) {
 
-//get the csv file
-$csvfile = $_FILES[csv][tmp_name];
+//get the csv file & Verify file format
+    $csvfile = $_FILES[csv][tmp_name];
+
+//    $mimes = array('application/vnd.ms-excel','text/plain','text/csv','text/tsv');
+//    $file_type=mime_content_type($csvfile);
+//    if(!key_exists('$file_type',$mimes)){
+//        echo("Sorry ". $file_type. ", not allowed. Please click Intel tab on menu to refresh page"."<br/>");
+//        get_Footer();
+//        die;
+//    }else{
+//        $csvfile = $_FILES[csv][tmp_name];
+//    }
+
+    //verify proper file format
+//    echo mime_content_type($csvfile);
+//    die;
+
+
 
     try {
         $pdo = new PDO("mysql:host=$databasehost;dbname=$databasename",
