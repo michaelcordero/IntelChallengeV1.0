@@ -20,9 +20,7 @@
 /*
 Template Name: Results
 */
-
-    get_header();
-
+get_header();
 ?>
 
 	<section class="page-header" style="background:#404040 url(<?php if ( get_header_image() ) { header_image(); }  ?>/*)">*/
@@ -41,8 +39,26 @@ Template Name: Results
 <br/>
 
 <?php
-global $wpdb;  //wordpress global variable that interacts with DB
+
+
+// Clear Data Functionality
+
+if(isset($_POST["Clear"])){
+    try {
+        $link = mysqli_connect("localhost", "root", "Qqq#1080", "wordpress");
+        mysqli_query($link, 'TRUNCATE TABLE IntelChallenge');
+    } catch (mysqli_sql_exception $e) {
+        echo "<h2>" . $e->getMessage() . "</h2>";
+    }
+}
+
+
+//Create Data Table
+
+global $wpdb;  //wordpress global variable that interacts with Database
 $results = $wpdb->get_results("SELECT * FROM wordpress.IntelChallenge", ARRAY_N);
+
+
 if(!empty($results)){
     echo "<h1>"."Data Table". "</h1>";
     echo "<table border='1' cellspacing='5em' cellpadding='5'>";
@@ -50,9 +66,11 @@ if(!empty($results)){
        echo "<tr>"."<td>".$row[0]."</td>"."<td>".$row[1]."</td>"."<td>".$row[2]."</td>"."<td>".$row[3]."</td>"."<td>".$row[4]."</td>"."</tr>";
    }
     echo "</table>";
-
     echo "<br/>"."<br/>";
-    $trojans=$wpdb->get_var("SELECT COUNT(*)  FROM `IntelChallenge` WHERE `ClassificationType` LIKE 'trojan'");
+
+
+//Create Data Set
+    $trojan=$wpdb->get_var("SELECT COUNT(*)  FROM `IntelChallenge` WHERE `ClassificationType` LIKE 'trojan'");
     $clean=$wpdb->get_var("SELECT COUNT(*)  FROM `IntelChallenge` WHERE `ClassificationType` LIKE 'clean'");
     $virus=$wpdb->get_var("SELECT COUNT(*)  FROM `IntelChallenge` WHERE `ClassificationType` LIKE 'virus'");
     $unknown=$wpdb->get_var("SELECT COUNT(*)  FROM `IntelChallenge` WHERE `ClassificationType` LIKE 'unknown'");
@@ -60,7 +78,7 @@ if(!empty($results)){
 
     echo "<h1>"."Data Detection Results". "</h1>";
     echo "<table border='1' cellspacing='5em' cellpadding='5'>";
-    echo "<tr>"."<td>"."Trojan Files: "."</td>"."<td>".$trojans."</td>"."<tr/>";
+    echo "<tr>"."<td>"."Trojan Files: "."</td>"."<td>".$trojan."</td>"."<tr/>";
     echo "<tr>"."<td>"."Clean Files: "."</td>"."<td>".$clean."</td>"."<tr/>";
     echo "<tr>"."<td>"."Virus Files: "."</td>"."<td>".$virus."</td>"."<tr/>";
     echo "<tr>"."<td>"."Unknown Files: "."</td>"."<td>".$unknown."</td>"."<tr/>";
@@ -68,49 +86,49 @@ if(!empty($results)){
     echo "</table>";
     echo "<br/>"."<br/>";
 }else{
-    echo "<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>"."<br/>";
+    for($i=0; $i<10;$i++){echo "<br/>";}
 }
 
 ?>
 
 <?php
 
-$databasehost = "localhost";
-$databasename = "wordpress";
-$databasetable = "IntelChallenge";
-$databaseusername="root";
-$databasepassword = "Qqq#1080";
-$fieldseparator = ",";
-$lineseparator = "\n";
-
 if ($_FILES[csv][size] > 0) {
 
-//get the csv file & Verify file format
+//get the csv file
     $csvfile = $_FILES[csv][tmp_name];
+    $file_type=mime_content_type($csvfile);
 
-//    $mimes = array('application/vnd.ms-excel','text/plain','text/csv','text/tsv');
-//    $file_type=mime_content_type($csvfile);
-//    if(!key_exists('$file_type',$mimes)){
-//        echo("Sorry ". $file_type. ", not allowed. Please click Intel tab on menu to refresh page"."<br/>");
-//        get_Footer();
-//        die;
-//    }else{
-//        $csvfile = $_FILES[csv][tmp_name];
-//    }
+//  Verify file format
+    $mimes = array("application/vnd.ms-excel","text/plain","text/csv","text/tsv");
 
-    //verify proper file format
-//    echo mime_content_type($csvfile);
-//    die;
+    if(!in_array($file_type,$mimes)){
+        echo("<h3>"."Sorry ". $file_type. ", not allowed. Please click Intel tab on menu to refresh page"."</h3>"."<br/>");
+        get_Footer();
+        die;
+    }else{
 
+        $csvfile = $_FILES[csv][tmp_name];
+    }
 
-
+//  Execute Insert Query
     try {
+        $databasehost = "localhost";
+        $databasename = "wordpress";
+        $databasetable = "IntelChallenge";
+        $databaseusername="root";
+        $databasepassword = "Qqq#1080";
+        $fieldseparator = ",";
+        $lineseparator = "\n";
+
+        //PHP Data Object:: Optimized PHP object for interacting with Database
+
         $pdo = new PDO("mysql:host=$databasehost;dbname=$databasename",
             $databaseusername, $databasepassword,
             array(
                 PDO::MYSQL_ATTR_LOCAL_INFILE => true,
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::MYSQL_ATTR_READ_DEFAULT_GROUP => 'client') //PHP v5.5 bug fix
+                PDO::MYSQL_ATTR_READ_DEFAULT_GROUP => 'client') //PHP v5.5 bug workaround
         );
     } catch (PDOException $e) {
         die("database connection failed: " . $e->getMessage());
@@ -126,7 +144,10 @@ if ($_FILES[csv][size] > 0) {
         echo "<h2>" . $e->getMessage() . "</h2>";
     }
 
+
 } ?>
+
+<!--Form to take user input of CSV-->
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -135,12 +156,12 @@ if ($_FILES[csv][size] > 0) {
 </head>
 <body>
 <form action="" method="post" enctype="multipart/form-data" name="form1" id="form1">
-    Choose your file: <br />
-    <input name="csv" type="file" id="csv" accept=".csv" />
-    <input type="submit" name="Submit" value="Submit"  />
-    <input type="submit" name="Clear" class="button" value="Clear Data" onclick="clearData()"  />
+    <h1>Choose your file: </h1> <br />
+    <div><input name="csv" type="file" id="csv" accept=".csv" /></div>
+    <br/>
+    <input type="submit" name="Submit" value="Submit"  /> &nbsp;&nbsp;
+    <input type="submit" name="Clear" value="Clear Data" />
 </form>
 </body>
 </html>
-
 <?php get_footer(); ?>
