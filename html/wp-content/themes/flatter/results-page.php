@@ -79,7 +79,7 @@ $databasehost = "localhost";
 $databasename = "wordpress";
 $databasetable = "IntelChallenge";
 $databaseusername="root";
-$databasepassword = "Qqq#1080";
+$databasepassword = "password";
 $fieldseparator = ",";
 $lineseparator = "\n";
 
