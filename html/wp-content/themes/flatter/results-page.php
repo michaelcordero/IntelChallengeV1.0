@@ -36,9 +36,9 @@ $pdo = new PDO("mysql:host=localhost;dbname=wordpress", 'root', 'Qqq#1080',
             PDO::MYSQL_ATTR_READ_DEFAULT_GROUP => 'client') //PHP v5.5 bug workaround
     );
 
-// Clear Data Functionality
-
 $existing_data = $wpdb->get_results("SELECT * FROM wordpress.IntelChallenge", ARRAY_N);
+
+// Clear Data Functionality
 
 if (isset($_POST["Clear"]) && !empty($existing_data)) {
         $pdo->query('TRUNCATE TABLE IntelChallenge');
@@ -81,12 +81,13 @@ if (!empty($existing_data)) {
 if ($_FILES[csv][size] > 0) {
 
 //get the csv file
+
     $csvfile = $_FILES[csv][tmp_name];
     $file_type = mime_content_type($csvfile);
 
 //  Verify file format; Wordpress method validate_file() protects against file directory traversal attack and invalid file types.
-    $mimes = array("application/vnd.ms-excel", "text/plain", "text/csv", "text/tsv");
 
+    $mimes = array("application/vnd.ms-excel", "text/plain", "text/csv", "text/tsv");
     if (validate_file($file_type, $mimes) != 0) {
         echo("<h3>" . "Sorry " . $file_type . ", not allowed. Please click Intel tab on menu to refresh page" . "</h3>" . "<br/>");
         get_Footer();
